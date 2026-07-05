@@ -81,7 +81,7 @@ function start() {
 
     const FFplane1 = spawnPrimitive.plane(
         "Front",
-        new Vector3(-5.5, 4.0, -1.5),
+        new Vector3(-8.0, 4.0, -1.5),
         new Vector3(3.2, 1.8, 1),
         Quaternion.one, new Color(0, 0.2, 0.5),
         1,
@@ -92,8 +92,8 @@ function start() {
     const fractalFlower1 = `shader_type spatial;
     
     uniform vec2 resolution = vec2(1920.0, 1080.0);
-    uniform float speed: hint_range(0.0, 10.0, 0.01) = 1.0;
-    uniform float iterations: hint_range(0.0, 10.0, 1.0) = 1.5;
+    uniform float speed: hint_range(0.0, 10.0, 0.01) = 1.5;
+    uniform float iterations: hint_range(0.0, 10.0, 1.0) = 1.0;
     uniform float slices: hint_range(1.0, 100.0, 1.0) = 0.0;
     uniform float warp: hint_range(1.0, 100.0, 0.1) = 30.0;
     
