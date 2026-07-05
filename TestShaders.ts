@@ -81,8 +81,8 @@ function start() {
 
     const FFplane1 = spawnPrimitive.plane(
         "Front",
-        new Vector3(-4.0, 4.0, -1.5),
-        new Vector3(5, 1.8, 1),
+        new Vector3(-5.5, 4.0, -1.5),
+        new Vector3(3.2, 1.8, 1),
         Quaternion.one, new Color(0, 0.2, 0.5),
         1,
         "Convex",
@@ -100,7 +100,7 @@ function start() {
     uniform vec3 a: source_color = vec3(0.5, 0.5, 0.5);
     uniform vec3 b: source_color = vec3(0.5, 0.5, 0.5);
     uniform vec3 c: source_color = vec3(1.0, 1.0, 1.0);
-    uniform vec3 d: source_color = vec3(0.0, 0.33, 0.33);
+    uniform vec3 d: source_color = vec3(0.0, 0.33, 0.22);
     
     vec3 palette(float t) {
     return a + b * cos(TAU * (c * t + d));
