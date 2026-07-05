@@ -100,7 +100,7 @@ function start() {
     uniform vec3 a: source_color = vec3(0.5, 0.5, 0.5);
     uniform vec3 b: source_color = vec3(0.5, 0.5, 0.5);
     uniform vec3 c: source_color = vec3(1.0, 1.0, 1.0);
-    uniform vec3 d: source_color = vec3(0.0, 0.33, 0.22);
+    uniform vec3 d: source_color = vec3(0.0, 0.33, 0.67);
     
     vec3 palette(float t) {
     return a + b * cos(TAU * (c * t + d));
@@ -192,6 +192,60 @@ function start() {
     }
 
 
+    const FFplane3 = spawnPrimitive.plane(
+        "Front",
+        new Vector3(-8.0, 1.5, -1.5),
+        new Vector3(3.2, 1.8, 1),
+        Quaternion.one, new Color(0, 0.2, 0.5),
+        1,
+        "Convex",
+        "Animated",
+        undefined);
+    
+    const fractalFlower3 = `shader_type spatial;
+    
+    uniform vec2 resolution = vec2(1920.0, 1080.0);
+    uniform float speed: hint_range(0.0, 10.0, 0.01) = 1.0;
+    uniform float iterations: hint_range(0.0, 10.0, 1.0) = 4.0;
+    uniform float slices: hint_range(1.0, 100.0, 1.0) = 6.0;
+    uniform float warp: hint_range(1.0, 100.0, 0.1) = 2.0;
+    
+    uniform vec3 a: source_color = vec3(0.5, 0.5, 0.5);
+    uniform vec3 b: source_color = vec3(0.5, 0.5, 0.5);
+    uniform vec3 c: source_color = vec3(1.0, 1.0, 1.0);
+    uniform vec3 d: source_color = vec3(0.0, 0.33, 0.67);
+    
+    vec3 palette(float t) {
+    return a + b * cos(TAU * (c * t + d));
+    }
+    
+    
+    void fragment() {
+    vec2 uv = UV - 0.5;
+    uv.x *= resolution.x / resolution.y;
+    float time = TIME * speed;
+    vec3 result = vec3(0.0);
+    vec2 polar = vec2(atan(uv.x, uv.y), length(uv));
+    
+    for (float i = 0.0; i < iterations; i++) {
+        float angle = polar.x * (slices + i);
+        float shape = abs(sin(angle)) + 1.0;
+        uv = fract(uv * shape) - 0.5;
+        float dist = length(uv) * exp(-polar.y) * shape;
+        dist = 0.01 / abs(sin(dist * warp + angle + time) / warp);
+        vec3 color = palette(polar.y + shape + i + time * 0.1);
+        result += color * dist * shape;
+    }
+    
+    ALBEDO = result;
+    ALPHA = 1.0;
+    }
+    
+                
+    `
+    if (FFplane3.mesh.nodeID) {
+        Godot.shader.applyToMesh(FFplane3.mesh.nodeID, fractalFlower3)
+    }
 
 
 
@@ -204,10 +258,10 @@ function start() {
         "Convex",
         "Animated",
         undefined);
-
-    const fractalFlower4 = `shader_type spatial;
-
-uniform vec2 resolution = vec2(1920.0, 1080.0);
+        
+        const fractalFlower4 = `shader_type spatial;
+        
+        uniform vec2 resolution = vec2(1920.0, 1080.0);
 uniform float speed: hint_range(0.0, 10.0, 0.01) = 1.0;
 uniform float iterations: hint_range(0.0, 10.0, 1.0) = 1.0;
 uniform float slices: hint_range(1.0, 100.0, 1.0) = 10.0;
