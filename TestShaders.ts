@@ -86,6 +86,80 @@ void fragment() {
 
 
 
+
+    const MPplane2 = spawnPrimitive.plane(
+        "Front",
+        new Vector3(4.0, 4.0, -1.5),
+        new Vector3(3.2, 1.8, 1),
+        Quaternion.one, new Color(0, 0.2, 0.5),
+        1,
+        "Convex",
+        "Animated",
+        undefined);
+
+
+    const MagicPortal2 = `shader_type spatial;
+
+uniform vec2 resolution = vec2(1920.0,1080.0);
+uniform float direction: hint_range(-1.0, 1.0, 0.01) = 0.1;
+uniform float brightness: hint_range(0.0, 30.0, 0.01) = 15.0;
+uniform float speed: hint_range(0.0, 10.0, 0.01) = 0.8;
+uniform float octaves: hint_range(1.0, 200.0, 0.1) = 100.0;
+uniform float shift: hint_range(0.0, 10.0, 0.01) = 1.0;
+uniform float strech: hint_range(1.0, 100.0, 0.1) = 0.5;
+uniform float alpha_threshold: hint_range(0.0, 1.0, 0.01) = 0;
+
+//palette group
+uniform vec3 b: source_color = vec3(0.5, 0.5, 0.5);
+uniform vec3 c: source_color = vec3(0.5, 0.5, 0.5);
+uniform vec3 d: source_color = vec3(1.0, 1.0, 1.0);
+uniform vec3 e: source_color = vec3(0.0, 0.33, 0.67);
+
+vec3 palette(float t){
+	return b + c * cos(TAU * (d * t + e));
+}
+
+mat2 rotate(float a) {
+	float sa = sin(a);
+	float ca = cos(a);
+	return mat2(vec2(ca, sa), vec2(-sa,ca));
+}
+
+vec3 fbm(vec3 ray) { //fbm = fractal brownian motion
+	vec3 result = vec3(0.0);
+	float time = TIME * speed;
+	for (float i = 0.0; i < octaves; i++) {
+		vec3 p = result;
+		p.z += time + i * shift * 0.01;
+		p.z /= strech * 1.0;
+		p.xy *= rotate(p.z);
+		result += length(sin(p.yx + time) + cos(p.xz + time)) * ray;
+	}
+	return result;
+}
+
+void fragment() {
+	vec2 uv = UV - 0.5; //moves coordinate origin to center
+	uv.x *= resolution.x / resolution.y;
+	vec3 ray = vec3(uv, direction);
+	vec3 result = fbm(ray);
+	float t = brightness / length(result);
+	float dist = length(uv);
+	vec3 color = palette(dist * 1.0 + TIME * -0.2) * t;
+	float avg = (color.r + color.g + color.b) / 3.0;
+	
+	
+	ALBEDO = color;
+	ALPHA = avg <= alpha_threshold ? 0.0 : 1.0;
+}`;
+
+    if (MPplane2.mesh.nodeID) {
+        Godot.shader.applyToMesh(MPplane2.mesh.nodeID, MagicPortal2)
+    }
+
+
+
+
     const MPplane3 = spawnPrimitive.plane(
         "Front",
         new Vector3(0, 1.5, -1.5),
