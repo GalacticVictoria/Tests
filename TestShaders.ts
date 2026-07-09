@@ -102,7 +102,7 @@ void fragment() {
 
 uniform vec2 resolution = vec2(1920.0,1080.0);
 uniform float direction: hint_range(-1.0, 1.0, 0.01) = 0.1;
-uniform float brightness: hint_range(0.0, 30.0, 0.01) = 15.0;
+uniform float brightness: hint_range(0.0, 30.0, 0.01) = 10.0;
 uniform float speed: hint_range(0.0, 10.0, 0.01) = 0.8;
 uniform float octaves: hint_range(1.0, 200.0, 0.1) = 100.0;
 uniform float shift: hint_range(0.0, 10.0, 0.01) = 1.0;
