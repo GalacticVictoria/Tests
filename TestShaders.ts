@@ -16,7 +16,7 @@ function start() {
 
     const MPplane1 = spawnPrimitive.plane(
         "Front",
-        new Vector3(-8.0, 1.5, -1.5),
+        new Vector3(0, 4.0, -1.5),
         new Vector3(3.2, 1.8, 1),
         Quaternion.one, new Color(0, 0.2, 0.5),
         1,
