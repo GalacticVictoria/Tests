@@ -98,7 +98,7 @@ uniform float line_strength : hint_range(0.0, 2000.0) = 50.0;
 uniform float blend_amount : hint_range(0.0, 0.999) = 0.25;
 
 // --- Pulse animation ---
-uniform float pulse_speed : hint_range(0.0, 10.0) = 1.5;   // cycles per second-ish
+uniform float pulse_speed : hint_range(0.0, 10.0) = 3;   // cycles per second-ish
 uniform float pulse_amount : hint_range(0.0, 1.0) = 0.3;  // 0 = no pulse, 1 = strongest swing
 
 // --- Base surface (from the Principled BSDF inside the group) ---
