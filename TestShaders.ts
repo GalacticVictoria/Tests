@@ -17,8 +17,8 @@ function start() {
     const Esphere1 = spawnPrimitive.sphere(
         30,
         30,
-        new Vector3(0, 4.0, 0),
-        4,
+        new Vector3(0, -4.0, 1),
+        1,
         Quaternion.one, new Color(0, 0, 0),
         1,
         "Sphere",
@@ -30,7 +30,7 @@ render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_sc
 
 // --- Exposed to the Inspector, matching the Blender Group's inputs ---
 uniform vec4 line_color : source_color = vec4(0.01, 0.0, 0.02, 1.0);
-uniform float line_strength : hint_range(0.0, 2000.0) = 50.0;
+uniform float line_strength : hint_range(0.0, 2000.0) = 75.0;
 uniform float blend_amount : hint_range(0.0, 0.999) = 0.25;
 
 // --- Base surface (from the Principled BSDF inside the group) ---
