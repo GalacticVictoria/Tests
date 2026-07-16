@@ -94,7 +94,7 @@ render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_sc
 
 // --- Exposed to the Inspector, matching the Blender Group's inputs ---
 uniform vec4 line_color : source_color = vec4(0.01, 0.0, 0.0, 1.0);
-uniform float line_strength : hint_range(0.0, 2000.0) = 100.0;
+uniform float line_strength : hint_range(0.0, 2000.0) = 75.0;
 uniform float blend_amount : hint_range(0.0, 0.999) = 0.25;
 
 // --- Pulse animation ---
@@ -148,6 +148,102 @@ void fragment() {
     if (Esphere2.mesh.nodeID) {
         Godot.shader.applyToMesh(Esphere2.mesh.nodeID, Emission2)
     }
+    
+    
+    
+    const Esphere3 = spawnPrimitive.sphere(
+        300,
+        300,
+        new Vector3(-4.0, 4, 8),
+        1,
+        Quaternion.one, new Color(0, 0, 0),
+        1,
+        "Sphere",
+        "Static",
+        undefined);
+
+    const Emission3 = `shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
+
+// --- Exposed to the Inspector, matching the Blender Group's inputs ---
+uniform vec4 line_color : source_color = vec4(0.0, 0.1, 0.0, 1.0);
+uniform float line_strength : hint_range(0.0, 2000.0) = 75.0;
+uniform float blend_amount : hint_range(0.0, 0.999) = 0.25;
+
+// --- Pulse animation (emission) ---
+uniform float pulse_speed : hint_range(0.0, 10.0) = 1.5;   // cycles per second-ish
+uniform float pulse_amount : hint_range(0.0, 1.0) = 0.25;  // 0 = no pulse, 1 = strongest swing
+
+// --- Base surface (from the Principled BSDF inside the group) ---
+uniform vec4 base_color : source_color = vec4(0.0, 0.0, 0.0, 0.0);
+uniform float metallic_amount : hint_range(0.0, 1.0) = 1.0;
+uniform float roughness_amount : hint_range(0.0, 1.0) = 1.0;
+
+// --- Color Ramp thresholds (from the B-Spline stops in the original ramp) ---
+uniform float ramp_low : hint_range(0.0, 1.0) = 0.1;
+uniform float ramp_high : hint_range(0.0, 1.0) = 0.9;
+
+// --- Mana bulb vertex animation ---
+uniform float bulb_amount : hint_range(0.0, 0.5) = 0.1;   // how far vertices bulge, in local units
+uniform float bulb_speed : hint_range(0.0, 5.0) = 0.9;     // how fast the bulge loops
+uniform float bulb_frequency : hint_range(0.5, 100.0) = 10.0; // how many bulges/lobes appear around the shape
+
+void vertex() {
+	vec3 n = normalize(NORMAL);
+
+	// Three sine waves, each reading a different axis of the vertex's local
+	// position and running at a slightly offset phase/speed, summed and
+	// averaged. This is what breaks up a plain "scale in and out" pulse into
+	// an organic, lopsided bulge that looks like it's breathing/shifting.
+	float wave = sin(VERTEX.x * bulb_frequency + TIME * bulb_speed)
+		+ sin(VERTEX.y * bulb_frequency * 1.3 + TIME * bulb_speed * 0.8 + 1.5)
+		+ sin(VERTEX.z * bulb_frequency * 0.7 - TIME * bulb_speed * 1.2 + 3.0);
+	wave /= 3.0; // back into roughly -1..1
+
+	VERTEX += n * wave * bulb_amount;
+}
+
+void fragment() {
+	// NORMAL and VIEW are already in view space in Godot's fragment stage,
+	// so this dot product is the direct equivalent of Blender's
+	// Layer Weight "Facing" output (abs(dot(incoming, normal))).
+	float ndotv = abs(dot(NORMAL, VIEW));
+
+	// Blender's Layer Weight remaps "Blend" before applying it as an exponent:
+	// blend < 0.5 -> 2*blend,  blend >= 0.5 -> 0.5 / (1 - blend)
+	float remapped_blend = blend_amount < 0.5
+		? 2.0 * blend_amount
+		: 0.5 / max(1.0 - blend_amount, 0.0001);
+
+	// Blender's "Facing" output is inverted from raw NdotV — it's a cheap
+	// Fresnel-style ratio: near 0 when the surface faces the camera
+	// straight-on, near 1 at grazing/silhouette angles.
+	float facing = 1.0 - pow(clamp(ndotv, 0.0, 1.0), remapped_blend);
+
+	// The original Color Ramp is really a hard step dressed up as a gradient
+	// (its two stops are only ~0.018 apart), so smoothstep reproduces it well.
+	float line_mask = smoothstep(ramp_low, ramp_high, facing);
+
+	ALBEDO = base_color.rgb;
+	METALLIC = metallic_amount;
+	ROUGHNESS = roughness_amount;
+
+	// Sine pulse centered on 1.0, scaled by pulse_amount so 0 = flat/no pulse.
+	float pulse = 1.0 + (sin(TIME * pulse_speed) * 0.5 + 0.5 - 0.5) * 2.0 * pulse_amount;
+
+	// Mix Shader(Fac) -> BSDF at Fac=0, Emission at Fac=1.
+	// Godot has no "Mix Shader" node, so the emissive line is layered on top
+	// via EMISSION, gated by the same mask, with the pulse riding on top.
+	EMISSION = mix(vec3(0.0), line_color.rgb * line_strength * pulse, line_mask);
+}`;
+
+    if (Esphere3.mesh.nodeID) {
+        Godot.shader.applyToMesh(Esphere3.mesh.nodeID, Emission3)
+    }
+
+
+
+
 
 
 
