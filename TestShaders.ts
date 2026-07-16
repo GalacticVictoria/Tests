@@ -17,7 +17,7 @@ function start() {
     const Esphere1 = spawnPrimitive.sphere(
         30,
         30,
-        new Vector3(-8.0, 1.5, 1),
+        new Vector3(-8.0, 1.5, 4),
         1,
         Quaternion.one, new Color(0, 0, 0),
         1,
