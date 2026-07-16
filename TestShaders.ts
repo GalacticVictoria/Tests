@@ -93,7 +93,7 @@ void fragment() {
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 
 // --- Exposed to the Inspector, matching the Blender Group's inputs ---
-uniform vec4 line_color : source_color = vec4(0.01, 0.0, 0.02, 1.0);
+uniform vec4 line_color : source_color = vec4(0.1, 0.0, 0.0, 1.0);
 uniform float line_strength : hint_range(0.0, 2000.0) = 50.0;
 uniform float blend_amount : hint_range(0.0, 0.999) = 0.25;
 
@@ -108,7 +108,7 @@ uniform float roughness_amount : hint_range(0.0, 1.0) = 1.0;
 
 // --- Color Ramp thresholds (from the B-Spline stops in the original ramp) ---
 uniform float ramp_low : hint_range(0.0, 1.0) = 0.1;
-uniform float ramp_high : hint_range(0.0, 1.0) = 0.9;
+uniform float ramp_high : hint_range(0.0, 1.0) = 0.7;
 
 void fragment() {
 	// NORMAL and VIEW are already in view space in Godot's fragment stage,
