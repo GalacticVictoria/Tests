@@ -108,7 +108,7 @@ uniform float roughness_amount : hint_range(0.0, 1.0) = 1.0;
 
 // --- Color Ramp thresholds (from the B-Spline stops in the original ramp) ---
 uniform float ramp_low : hint_range(0.0, 1.0) = 0.1;
-uniform float ramp_high : hint_range(0.0, 1.0) = 0.8;
+uniform float ramp_high : hint_range(0.0, 1.0) = 0.9;
 
 void fragment() {
 	// NORMAL and VIEW are already in view space in Godot's fragment stage,
