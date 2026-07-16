@@ -12,6 +12,72 @@ import { spawnPrimitive } from "./Yuu API/SpawnPrimitive";
 registerStart(start);
 function start() {
 
+    //Sphere Emission
+
+    const Esphere1 = spawnPrimitive.sphere(
+        30,
+        30,
+        new Vector3(0, 4.0, 0),
+        4,
+        Quaternion.one, new Color(0, 0, 0),
+        1,
+        "Sphere",
+        "Static",
+        undefined);
+
+    const Emission1 = `shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
+
+// --- Exposed to the Inspector, matching the Blender Group's inputs ---
+uniform vec4 line_color : source_color = vec4(0.01, 0.0, 0.02, 1.0);
+uniform float line_strength : hint_range(0.0, 2000.0) = 50.0;
+uniform float blend_amount : hint_range(0.0, 0.999) = 0.25;
+
+// --- Base surface (from the Principled BSDF inside the group) ---
+uniform vec4 base_color : source_color = vec4(0.0, 0.0, 0.0, 0.0);
+uniform float metallic_amount : hint_range(0.0, 1.0) = 1.0;
+uniform float roughness_amount : hint_range(0.0, 1.0) = 1.0;
+
+// --- Color Ramp thresholds (from the B-Spline stops in the original ramp) ---
+uniform float ramp_low : hint_range(0.0, 1.0) = 0.1;
+uniform float ramp_high : hint_range(0.0, 1.0) = 0.9;
+
+void fragment() {
+	// NORMAL and VIEW are already in view space in Godot's fragment stage,
+	// so this dot product is the direct equivalent of Blender's
+	// Layer Weight "Facing" output (abs(dot(incoming, normal))).
+	float ndotv = abs(dot(NORMAL, VIEW));
+
+	// Blender's Layer Weight remaps "Blend" before applying it as an exponent:
+	// blend < 0.5 -> 2*blend,  blend >= 0.5 -> 0.5 / (1 - blend)
+	float remapped_blend = blend_amount < 0.5
+		? 2.0 * blend_amount
+		: 0.5 / max(1.0 - blend_amount, 0.0001);
+
+	// Blender's "Facing" output is inverted from raw NdotV — it's a cheap
+	// Fresnel-style ratio: near 0 when the surface faces the camera
+	// straight-on, near 1 at grazing/silhouette angles.
+	float facing = 1.0 - pow(clamp(ndotv, 0.0, 1.0), remapped_blend);
+
+	// The original Color Ramp is really a hard step dressed up as a gradient
+	// (its two stops are only ~0.018 apart), so smoothstep reproduces it well.
+	float line_mask = smoothstep(ramp_low, ramp_high, facing);
+
+	ALBEDO = base_color.rgb;
+	METALLIC = metallic_amount;
+	ROUGHNESS = roughness_amount;
+
+	// Mix Shader(Fac) -> BSDF at Fac=0, Emission at Fac=1.
+	// Godot has no "Mix Shader" node, so the emissive line is layered on top
+	// via EMISSION, gated by the same mask.
+	EMISSION = mix(vec3(0.0), line_color.rgb * line_strength, line_mask);
+}`;
+
+    if (Esphere1.mesh.nodeID) {
+        Godot.shader.applyToMesh(Esphere1.mesh.nodeID, Emission1)
+    }
+
+
     //Magic Portal Shader Variants
 
     const MPplane1 = spawnPrimitive.plane(
@@ -234,7 +300,7 @@ void fragment() {
         "Convex",
         "Animated",
         undefined);
-    
+
     const fractalFlower1 = `shader_type spatial;
     
     uniform vec2 resolution = vec2(1920.0, 1080.0);
@@ -280,7 +346,7 @@ void fragment() {
         Godot.shader.applyToMesh(FFplane1.mesh.nodeID, fractalFlower1)
     }
 
-    
+
 
     const FFplane2 = spawnPrimitive.plane(
         "Front",
@@ -291,7 +357,7 @@ void fragment() {
         "Convex",
         "Animated",
         undefined);
-    
+
     const fractalFlower2 = `shader_type spatial;
     
     uniform vec2 resolution = vec2(1920.0, 1080.0);
@@ -347,7 +413,7 @@ void fragment() {
         "Convex",
         "Animated",
         undefined);
-    
+
     const fractalFlower3 = `shader_type spatial;
     
     uniform vec2 resolution = vec2(1920.0, 1080.0);
@@ -404,8 +470,8 @@ void fragment() {
         "Convex",
         "Animated",
         undefined);
-        
-        const fractalFlower4 = `shader_type spatial;
+
+    const fractalFlower4 = `shader_type spatial;
         
         uniform vec2 resolution = vec2(1920.0, 1080.0);
 uniform float speed: hint_range(0.0, 10.0, 0.01) = 1.0;
