@@ -923,9 +923,8 @@ void vertex() {
 }
 
 void fragment() {
-ALBEDO = UV.x * vec3(0.0, 0.2, 0.5) * 6.0;);
-METALLIC = 0.0;
-ROUGHNESS = 0.0;
+ALBEDO = UV.x * vec3(0.0, 0.2, 0.5) * 6.0;
+
 }`
 
 
