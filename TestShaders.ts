@@ -892,7 +892,7 @@ void fragment() {
         64,
         32,
         "Both",
-        new Vector3(-8.0, 1.0, -1.5),
+        new Vector3(8.0, 1.5, -1.5),
         new Vector3(3.2, 1.8, 1.0),
         Quaternion.one,
         new Color(1.0, 1.0, 1.0),
