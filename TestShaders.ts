@@ -188,7 +188,7 @@ uniform float ramp_high : hint_range(0.0, 1.0) = 0.9;
 // --- Mana bulb vertex animation ---
 uniform float bulb_amount : hint_range(0.0, 0.5) = 0.1;   // how far vertices bulge, in local units
 uniform float bulb_speed : hint_range(0.0, 5.0) = 0.9;     // how fast the bulge loops
-uniform float bulb_frequency : hint_range(0.5, 100.0) = 10.0; // how many bulges/lobes appear around the shape
+uniform float bulb_frequency : hint_range(0.5, 100.0) = 15.0; // how many bulges/lobes appear around the shape
 
 // Same wave function used for the main displacement, pulled out so it can
 // also be evaluated at nearby sample points for normal reconstruction.
