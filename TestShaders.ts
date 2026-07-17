@@ -923,7 +923,7 @@ void vertex() {
 }
 
 void fragment() {
-ALBEDO = cos(UV.x * UV.y / vec3(1,0.5,0.5) * 3.0);
+ALBEDO = UV.x * vec3(0.0, 0.2, 0.5) * 6.0;);
 METALLIC = 0.5;
 ROUGHNESS = 0.4;
 }`
