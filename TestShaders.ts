@@ -17,7 +17,7 @@ function start() {
     const Esphere1 = spawnPrimitive.sphere(
         30,
         30,
-        new Vector3(-8.0, 1.5, 8),
+        new Vector3(-2.0, 1.5, 8),
         1,
         Quaternion.one, new Color(0, 0, 0),
         1,
@@ -81,7 +81,7 @@ void fragment() {
     const Esphere2 = spawnPrimitive.sphere(
         30,
         30,
-        new Vector3(-6.0, 1.5, 8),
+        new Vector3(-4.0, 1.5, 8),
         1,
         Quaternion.one, new Color(0, 0, 0),
         1,
@@ -154,7 +154,7 @@ void fragment() {
     const Esphere3 = spawnPrimitive.sphere(
         300,
         300,
-        new Vector3(0, 1.5, 8),
+        new Vector3(-6, 1.5, 8),
         1,
         Quaternion.one, new Color(0, 0, 0),
         1,
@@ -288,7 +288,7 @@ void fragment() {
     const Esphere4 = spawnPrimitive.sphere(
         300,
         300,
-        new Vector3(-4, 1.5, 8),
+        new Vector3(-8, 1.5, 8),
         1,
         Quaternion.one, new Color(0, 0, 0),
         1,
