@@ -81,7 +81,7 @@ void fragment() {
     const Esphere2 = spawnPrimitive.sphere(
         30,
         30,
-        new Vector3(-4.0, 1.5, 8),
+        new Vector3(-6.0, 1.5, 8),
         1,
         Quaternion.one, new Color(0, 0, 0),
         1,
@@ -154,7 +154,7 @@ void fragment() {
     const Esphere3 = spawnPrimitive.sphere(
         300,
         300,
-        new Vector3(-4.0, 4, 8),
+        new Vector3(0, 1.5, 8),
         1,
         Quaternion.one, new Color(0, 0, 0),
         1,
@@ -166,8 +166,10 @@ void fragment() {
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 
 // --- Exposed to the Inspector, matching the Blender Group's inputs ---
-uniform vec4 line_color : source_color = vec4(0.0, 0.1, 0.0, 1.0);
-uniform float line_strength : hint_range(0.0, 2000.0) = 50.0;
+uniform vec4 color_inner : source_color = vec4(0.0, 0.0, 0.3, 1.0);  // color where the glow first appears (near center)
+uniform vec4 color_mid : source_color = vec4(0.0, 0.3, 0.15, 1.0);      // color partway out
+uniform vec4 color_outer : source_color = vec4(0.6, 1.0, 0.2, 1.0);   // color at the silhouette/edge
+uniform float line_strength : hint_range(0.0, 2000.0) = 2.0;
 uniform float blend_amount : hint_range(0.0, 0.999) = 0.25;
 
 // --- Pulse animation (emission) ---
@@ -188,19 +190,53 @@ uniform float bulb_amount : hint_range(0.0, 0.5) = 0.1;   // how far vertices bu
 uniform float bulb_speed : hint_range(0.0, 5.0) = 0.9;     // how fast the bulge loops
 uniform float bulb_frequency : hint_range(0.5, 100.0) = 10.0; // how many bulges/lobes appear around the shape
 
+// Same wave function used for the main displacement, pulled out so it can
+// also be evaluated at nearby sample points for normal reconstruction.
+float get_wave(vec3 pos) {
+	float wave = sin(pos.x * bulb_frequency + TIME * bulb_speed)
+		+ sin(pos.y * bulb_frequency * 1.3 + TIME * bulb_speed * 0.8 + 1.5)
+		+ sin(pos.z * bulb_frequency * 0.7 - TIME * bulb_speed * 1.2 + 3.0);
+	return wave / 3.0; // back into roughly -1..1
+}
+
 void vertex() {
 	vec3 n = normalize(NORMAL);
 
-	// Three sine waves, each reading a different axis of the vertex's local
-	// position and running at a slightly offset phase/speed, summed and
-	// averaged. This is what breaks up a plain "scale in and out" pulse into
-	// an organic, lopsided bulge that looks like it's breathing/shifting.
-	float wave = sin(VERTEX.x * bulb_frequency + TIME * bulb_speed)
-		+ sin(VERTEX.y * bulb_frequency * 1.3 + TIME * bulb_speed * 0.8 + 1.5)
-		+ sin(VERTEX.z * bulb_frequency * 0.7 - TIME * bulb_speed * 1.2 + 3.0);
-	wave /= 3.0; // back into roughly -1..1
+	// Build two directions tangent to the surface at this vertex, without
+	// needing mesh-supplied TANGENT data. Picking "up" as a reference axis
+	// fails only when n is nearly parallel to it, so swap references there.
+	vec3 reference = abs(n.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+	vec3 tangent = normalize(cross(n, reference));
+	vec3 bitangent = cross(n, tangent);
 
-	VERTEX += n * wave * bulb_amount;
+	// Small step size for the finite-difference samples. Small enough to
+	// stay local to the surface curvature, large enough to avoid precision
+	// noise in the reconstructed normal.
+	float eps = 0.01;
+
+	vec3 p0 = VERTEX;
+	vec3 p1 = VERTEX + tangent * eps;
+	vec3 p2 = VERTEX + bitangent * eps;
+
+	// Neighboring vertices have almost the same normal as this one at this
+	// approximation — this is what makes an analytic (no real neighbor
+	// data) normal reconstruction possible at all.
+	vec3 displaced0 = p0 + n * get_wave(p0) * bulb_amount;
+	vec3 displaced1 = p1 + n * get_wave(p1) * bulb_amount;
+	vec3 displaced2 = p2 + n * get_wave(p2) * bulb_amount;
+
+	vec3 edge1 = displaced1 - displaced0;
+	vec3 edge2 = displaced2 - displaced0;
+	vec3 new_normal = normalize(cross(edge1, edge2));
+
+	// Cross product direction depends on tangent/bitangent handedness —
+	// flip if it ended up pointing into the surface instead of out of it.
+	if (dot(new_normal, n) < 0.0) {
+		new_normal = -new_normal;
+	}
+
+	VERTEX = displaced0;
+	NORMAL = new_normal;
 }
 
 void fragment() {
@@ -228,21 +264,170 @@ void fragment() {
 	METALLIC = metallic_amount;
 	ROUGHNESS = roughness_amount;
 
+	// Blend across the same facing value that drives the fade, so the color
+	// itself shifts from center (color_inner) through color_mid out to the
+	// silhouette (color_outer), instead of staying one flat hue.
+	vec3 gradient_color = mix(color_inner.rgb, color_mid.rgb, smoothstep(0.0, 0.5, facing));
+	gradient_color = mix(gradient_color, color_outer.rgb, smoothstep(0.5, 1.0, facing));
+
 	// Sine pulse centered on 1.0, scaled by pulse_amount so 0 = flat/no pulse.
 	float pulse = 1.0 + (sin(TIME * pulse_speed) * 0.5 + 0.5 - 0.5) * 2.0 * pulse_amount;
 
 	// Mix Shader(Fac) -> BSDF at Fac=0, Emission at Fac=1.
 	// Godot has no "Mix Shader" node, so the emissive line is layered on top
 	// via EMISSION, gated by the same mask, with the pulse riding on top.
-	EMISSION = mix(vec3(0.0), line_color.rgb * line_strength * pulse, line_mask);
+	EMISSION = mix(vec3(0.0), gradient_color * line_strength * pulse, line_mask);
 }`;
 
     if (Esphere3.mesh.nodeID) {
         Godot.shader.applyToMesh(Esphere3.mesh.nodeID, Emission3)
     }
+    
+    
+    
+    const Esphere4 = spawnPrimitive.sphere(
+        300,
+        300,
+        new Vector3(-4, 1.5, 8),
+        1,
+        Quaternion.one, new Color(0, 0, 0),
+        1,
+        "Sphere",
+        "Static",
+        undefined);
 
+    const Emission4 = `shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 
+// --- Exposed to the Inspector, matching the Blender Group's inputs ---
+uniform float line_strength : hint_range(0.0, 2000.0) = 2.0;
+uniform float blend_amount : hint_range(0.0, 0.999) = 0.25;
 
+// --- Iridescent rainbow color ---
+uniform float hue_scale : hint_range(0.1, 10.0) = 2.0;   // how many full rainbow cycles span the facing range
+uniform float hue_speed : hint_range(-5.0, 5.0) = 0.15;  // slow drift over time so it's not static even head-on
+uniform float rainbow_saturation : hint_range(0.0, 1.0) = 0.70;
+uniform float rainbow_brightness : hint_range(0.0, 2.0) = 0.8;
+
+// --- Pulse animation (emission) ---
+uniform float pulse_speed : hint_range(0.0, 10.0) = 1.5;   // cycles per second-ish
+uniform float pulse_amount : hint_range(0.0, 1.0) = 0.25;  // 0 = no pulse, 1 = strongest swing
+
+// --- Base surface (from the Principled BSDF inside the group) ---
+uniform vec4 base_color : source_color = vec4(0.0, 0.0, 0.0, 0.0);
+uniform float metallic_amount : hint_range(0.0, 1.0) = 1.0;
+uniform float roughness_amount : hint_range(0.0, 1.0) = 1.0;
+
+// --- Color Ramp thresholds (from the B-Spline stops in the original ramp) ---
+uniform float ramp_low : hint_range(0.0, 1.0) = 0.1;
+uniform float ramp_high : hint_range(0.0, 1.0) = 0.9;
+
+// --- Mana bulb vertex animation ---
+uniform float bulb_amount : hint_range(0.0, 0.5) = 0.1;   // how far vertices bulge, in local units
+uniform float bulb_speed : hint_range(0.0, 5.0) = 0.9;     // how fast the bulge loops
+uniform float bulb_frequency : hint_range(0.5, 100.0) = 10.0; // how many bulges/lobes appear around the shape
+
+// Same wave function used for the main displacement, pulled out so it can
+// also be evaluated at nearby sample points for normal reconstruction.
+float get_wave(vec3 pos) {
+	float wave = sin(pos.x * bulb_frequency + TIME * bulb_speed)
+		+ sin(pos.y * bulb_frequency * 1.3 + TIME * bulb_speed * 0.8 + 1.5)
+		+ sin(pos.z * bulb_frequency * 0.7 - TIME * bulb_speed * 1.2 + 3.0);
+	return wave / 3.0; // back into roughly -1..1
+}
+
+// Standard HSV-to-RGB conversion, used to sweep through the full rainbow
+// hue wheel smoothly instead of blending between a handful of fixed colors.
+vec3 hue_to_rgb(vec3 hsv) {
+	vec3 rgb = clamp(abs(mod(hsv.x * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+	return hsv.z * mix(vec3(1.0), rgb, hsv.y);
+}
+
+void vertex() {
+	vec3 n = normalize(NORMAL);
+
+	// Build two directions tangent to the surface at this vertex, without
+	// needing mesh-supplied TANGENT data. Picking "up" as a reference axis
+	// fails only when n is nearly parallel to it, so swap references there.
+	vec3 reference = abs(n.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+	vec3 tangent = normalize(cross(n, reference));
+	vec3 bitangent = cross(n, tangent);
+
+	// Small step size for the finite-difference samples. Small enough to
+	// stay local to the surface curvature, large enough to avoid precision
+	// noise in the reconstructed normal.
+	float eps = 0.01;
+
+	vec3 p0 = VERTEX;
+	vec3 p1 = VERTEX + tangent * eps;
+	vec3 p2 = VERTEX + bitangent * eps;
+
+	// Neighboring vertices have almost the same normal as this one at this
+	// approximation — this is what makes an analytic (no real neighbor
+	// data) normal reconstruction possible at all.
+	vec3 displaced0 = p0 + n * get_wave(p0) * bulb_amount;
+	vec3 displaced1 = p1 + n * get_wave(p1) * bulb_amount;
+	vec3 displaced2 = p2 + n * get_wave(p2) * bulb_amount;
+
+	vec3 edge1 = displaced1 - displaced0;
+	vec3 edge2 = displaced2 - displaced0;
+	vec3 new_normal = normalize(cross(edge1, edge2));
+
+	// Cross product direction depends on tangent/bitangent handedness —
+	// flip if it ended up pointing into the surface instead of out of it.
+	if (dot(new_normal, n) < 0.0) {
+		new_normal = -new_normal;
+	}
+
+	VERTEX = displaced0;
+	NORMAL = new_normal;
+}
+
+void fragment() {
+	// NORMAL and VIEW are already in view space in Godot's fragment stage,
+	// so this dot product is the direct equivalent of Blender's
+	// Layer Weight "Facing" output (abs(dot(incoming, normal))).
+	float ndotv = abs(dot(NORMAL, VIEW));
+
+	// Blender's Layer Weight remaps "Blend" before applying it as an exponent:
+	// blend < 0.5 -> 2*blend,  blend >= 0.5 -> 0.5 / (1 - blend)
+	float remapped_blend = blend_amount < 0.5
+		? 2.0 * blend_amount
+		: 0.5 / max(1.0 - blend_amount, 0.0001);
+
+	// Blender's "Facing" output is inverted from raw NdotV — it's a cheap
+	// Fresnel-style ratio: near 0 when the surface faces the camera
+	// straight-on, near 1 at grazing/silhouette angles.
+	float facing = 1.0 - pow(clamp(ndotv, 0.0, 1.0), remapped_blend);
+
+	// The original Color Ramp is really a hard step dressed up as a gradient
+	// (its two stops are only ~0.018 apart), so smoothstep reproduces it well.
+	float line_mask = smoothstep(ramp_low, ramp_high, facing);
+
+	ALBEDO = base_color.rgb;
+	METALLIC = metallic_amount;
+	ROUGHNESS = roughness_amount;
+
+	// Iridescence: sweep hue based on facing (so it shifts as you orbit the
+	// mesh, like real thin-film iridescence) plus a slow TIME drift so it's
+	// still alive even from a fixed viewing angle. fract() wraps the hue
+	// back into 0..1 so it loops the color wheel seamlessly forever.
+	float hue = fract(facing * hue_scale + TIME * hue_speed);
+	vec3 gradient_color = hue_to_rgb(vec3(hue, rainbow_saturation, rainbow_brightness));
+
+	// Sine pulse centered on 1.0, scaled by pulse_amount so 0 = flat/no pulse.
+	float pulse = 1.0 + (sin(TIME * pulse_speed) * 0.5 + 0.5 - 0.5) * 2.0 * pulse_amount;
+
+	// Mix Shader(Fac) -> BSDF at Fac=0, Emission at Fac=1.
+	// Godot has no "Mix Shader" node, so the emissive line is layered on top
+	// via EMISSION, gated by the same mask, with the pulse riding on top.
+	EMISSION = mix(vec3(0.0), gradient_color * line_strength * pulse, line_mask);
+}
+`;
+
+    if (Esphere4.mesh.nodeID) {
+        Godot.shader.applyToMesh(Esphere4.mesh.nodeID, Emission4)
+    }
 
 
 
