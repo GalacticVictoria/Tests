@@ -314,9 +314,9 @@ uniform float pulse_speed : hint_range(0.0, 10.0) = 1.5;   // cycles per second-
 uniform float pulse_amount : hint_range(0.0, 1.0) = 0.25;  // 0 = no pulse, 1 = strongest swing
 
 // --- Base surface (from the Principled BSDF inside the group) ---
-uniform vec4 base_color : source_color = vec4(0.0, 0.0, 0.0, 0.0);
+uniform vec4 base_color : source_color = vec4(1.0, 1.0, 1.0, 0.0);
 uniform float metallic_amount : hint_range(0.0, 1.0) = 1.0;
-uniform float roughness_amount : hint_range(0.0, 1.0) = 1.0;
+uniform float roughness_amount : hint_range(0.0, 1.0) = 0.0;
 
 // --- Color Ramp thresholds (from the B-Spline stops in the original ramp) ---
 uniform float ramp_low : hint_range(0.0, 1.0) = 0.1;
