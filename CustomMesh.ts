@@ -6,6 +6,7 @@ import { Vector2 } from "./Yuu API/Basic Types/Vector2";
 import { Vector3 } from "./Yuu API/Basic Types/Vector3";
 import { registerStart } from "./Yuu API/RegisterStart";
 import { Entity } from "./Yuu API/Entity";
+import { inWorldConsole } from "./Yuu API/Console";
 
 
 export type ExportedMeshData = {
@@ -123,6 +124,13 @@ export function customMeshWithShader(
 
 registerStart(start);
 function start() {
+
+     inWorldConsole.visible(true, new Vector3(0,1.5,-1.5));
+
+    console.log("Crystal verts:", crystalMesh.verts.length);
+    console.log("Crystal triangles:", crystalMesh.triangles.length);
+
+
     const crystal = customMesh(
         crystalMesh,
         new Vector3(6, 1.5, -1.5),
