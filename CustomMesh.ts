@@ -125,7 +125,7 @@ export function customMeshWithShader(
 registerStart(start);
 function start() {
 
-     inWorldConsole.visible(true, new Vector3(0,1.5,-1.5));
+     inWorldConsole.visible(true, new Vector3(4,1.5,-1.5));
 
     console.log("Crystal verts:", crystalMesh.verts.length);
     console.log("Crystal triangles:", crystalMesh.triangles.length);
