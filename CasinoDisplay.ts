@@ -2,7 +2,7 @@ import { registerStart } from "./Yuu API/RegisterStart";
 
 
 
-registerStart(start);
+//registerStart(start);
 function start() {
     
 } 

@@ -125,10 +125,10 @@ registerStart(start);
 function start() {
     const crystal = customMesh(
         crystalMesh,
-        new Vector3(10, 1.5, -1.5),
+        new Vector3(6, 1.5, -1.5),
         new Vector3(1, 1, 1),
         Quaternion.one,
-        Color.blue,
+        new Color(0,0,1),
         1,
         "Convex",
         "Empty",
