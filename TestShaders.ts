@@ -435,6 +435,8 @@ void fragment() {
     //Magic Portal Shader Variants
 
     const MPplane1 = spawnPrimitive.plane(
+        1,
+        1,
         "Front",
         new Vector3(0, 4.0, -1.5),
         new Vector3(3.2, 1.8, 1),
@@ -508,6 +510,8 @@ void fragment() {
 
 
     const MPplane2 = spawnPrimitive.plane(
+        1,
+        1,
         "Front",
         new Vector3(4.0, 4.0, -1.5),
         new Vector3(3.2, 1.8, 1),
@@ -581,6 +585,8 @@ void fragment() {
 
 
     const MPplane3 = spawnPrimitive.plane(
+        1,
+        1,
         "Front",
         new Vector3(0, 1.5, -1.5),
         new Vector3(3.2, 1.8, 1),
@@ -646,6 +652,8 @@ void fragment() {
 
 
     const FFplane1 = spawnPrimitive.plane(
+        1,
+        1,
         "Front",
         new Vector3(-8.0, 4.0, -1.5),
         new Vector3(3.2, 1.8, 1),
@@ -703,6 +711,8 @@ void fragment() {
 
 
     const FFplane2 = spawnPrimitive.plane(
+        1,
+        1,
         "Front",
         new Vector3(-4.0, 4.0, -1.5),
         new Vector3(3.2, 1.8, 1),
@@ -759,6 +769,8 @@ void fragment() {
 
 
     const FFplane3 = spawnPrimitive.plane(
+        1,
+        1,
         "Front",
         new Vector3(-8.0, 1.5, -1.5),
         new Vector3(3.2, 1.8, 1),
@@ -816,10 +828,13 @@ void fragment() {
 
 
     const FFplane4 = spawnPrimitive.plane(
+        1,
+        1,
         "Front",
         new Vector3(-4.0, 1.5, -1.5),
         new Vector3(3.2, 1.8, 1),
-        Quaternion.one, new Color(0, 0.2, 0.5),
+        Quaternion.one, 
+        new Color(0, 0.2, 0.5),
         1,
         "Convex",
         "Animated",
@@ -871,7 +886,52 @@ void fragment() {
     }
 
 
+// Animated Flag
 
+    const flag = spawnPrimitive.plane(
+        64,
+        32,
+        "Both",
+        new Vector3(0.0, 0.0, 8.0),
+        new Vector3(3.2, 1.8, 1.0),
+        Quaternion.one,
+        new Color(1.0, 1.0, 1.0),
+        1,
+        "Convex",
+        "Animated",
+        undefined
+
+    )
+
+    const FlagAnimation = `shader_type spatial;
+
+
+uniform float wave_speed: hint_range(0.0, 10.0, 0.01) = 2.5;
+uniform float wave_amplitude: hint_range(0.0, 1.0, 0.01) = 0.15;
+uniform float wave_frequency: hint_range(0.1, 10.0, 0.01) = 3.0;
+uniform float wave_phases: hint_range(1.0, 8.0, 0.01) = 2.0;
+
+void vertex() {
+	float edge_factor = UV.x;
+	float wave = sin(UV.x * wave_frequency * TAU - TIME * wave_speed);
+	float wave2 = sin(
+		UV.x * wave_frequency * wave_phases * TAU
+		- TIME * wave_speed * 1.3 + UV.y * 2.0
+	) * 0.4;
+	VERTEX.z += (wave + wave2) * wave_amplitude * edge_factor;
+	VERTEX.y * wave * wave_amplitude * 0.2 * edge_factor;
+}
+
+void fragment() {
+ALBEDO = cos(UV.x * UV.y / vec3(1,0.5,0.5) * 3.0);
+METALLIC = 0.5;
+ROUGHNESS = 0.4;
+}`
+
+
+    if(flag.mesh.nodeID) {
+        Godot.shader.applyToMesh(flag.mesh.nodeID, FlagAnimation)
+    }
 
 }
 
