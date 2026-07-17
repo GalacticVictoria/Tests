@@ -9,6 +9,7 @@ import { Entity } from "./Yuu API/Entity";
 import { inWorldConsole } from "./Yuu API/Console";
 
 
+
 export type ExportedMeshData = {
   verts: Float32Array;
   uvs: Float32Array;
@@ -120,7 +121,6 @@ export function customMeshWithShader(
 
   return entity;
 }
-
 
 registerStart(start);
 function start() {
