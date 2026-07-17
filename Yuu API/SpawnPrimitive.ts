@@ -44,6 +44,8 @@ function cube(pos: Vector3, scale: Vector3, rot: Quaternion, color: Color, alpha
 
 /**
  * Create A Plane Entity
+ * @param columns number of segments along the horizontal, minimum of 1
+ * @param rows number of segments along the vertical, minimum of 1
  * @param drawSide to choose which side(s) of the plane to create, ie. 'Front', 'Back', or 'Both'
  * @param pos to be created at
  * @param scale to start at
@@ -54,10 +56,10 @@ function cube(pos: Vector3, scale: Vector3, rot: Quaternion, color: Color, alpha
  * @param type for animation and physics
  * @returns Entity created
  */
-function plane(drawSide: 'Front' | 'Back' | 'Both', pos: Vector3, scale: Vector3, rot: Quaternion, color: Color, alphaTransparency: number, colliderType: 'None' | 'Convex' | 'Concave', type: BaseNodeTypes, parent: Entity | undefined): Entity {
+function plane(columns: number, rows: number, drawSide: 'Front' | 'Back' | 'Both', pos: Vector3, scale: Vector3, rot: Quaternion, color: Color, alphaTransparency: number, colliderType: 'None' | 'Convex' | 'Concave', type: BaseNodeTypes, parent: Entity | undefined): Entity {
   const entity = new Entity(pos, rot, Vector3.one, parent, type);
 
-  entity.mesh.create(...getShadeSmoothPlane(drawSide));
+  entity.mesh.create(...getShadeSmoothPlane(columns, rows, drawSide));
   entity.mesh.color.set(color, Math.min(1, alphaTransparency));
 
   if (colliderType !== 'None' && entity.mesh.nodeID) {
@@ -246,31 +248,60 @@ function getShadeSmoothStretchedUVCube(): [Vector3[], Vector2[], number[]] {
   return stretchedUVCube;
 }
 
-function getShadeSmoothPlane(drawSide: 'Front' | 'Back' | 'Both'): [Vector3[], Vector2[], number[]] {
-  const verts: Vector3[] = [
-    new Vector3(-0.5, 0.5, 0), //Top Left
-    new Vector3(0.5, 0.5, 0), //Top Right
-    new Vector3(0.5, -0.5, 0), //Bottom Right
-    new Vector3(-0.5, -0.5, 0), //Bottom Left
-  ];
+const planeMap = new Map<string, [Vector3[], Vector2[], number[]]>();
 
-  const uvs: Vector2[] = [
-    new Vector2(0, 1), //Top Left
-    new Vector2(1, 1), //Top Right
-    new Vector2(1, 0), //Bottom Right
-    new Vector2(0, 0), //Bottom Left
-  ];
+function getShadeSmoothPlane(columns: number, rows: number, drawSide: 'Front' | 'Back' | 'Both'): [Vector3[], Vector2[], number[]] {
+  const c = Math.max(1, columns);
+  const r = Math.max(1, rows);
 
-  const triangles: number[] = [];
+  const cacheKey = c.toString() + '_' + r.toString() + '_' + drawSide;
 
-  if (drawSide === 'Front' || drawSide === 'Both') {
-    triangles.push(...getQuadTriangles(0, 1, 2, 3));
+  const preGeneratedPlane = planeMap.get(cacheKey);
+
+  if (preGeneratedPlane) {
+    return preGeneratedPlane;
   }
-  if (drawSide === 'Back' || drawSide === 'Both') {
-    triangles.push(...getQuadTriangles(1, 0, 3, 2));
-  }
+  else {
+    const vertsPerRow = c + 1;
 
-  return [verts, uvs, triangles];
+    const verts: Vector3[] = [];
+    const uvs: Vector2[] = [];
+
+    for (let indexR = 0; indexR <= r; indexR++) {
+      const y = 0.5 - (indexR / r);
+      const uvY = 1 - (indexR / r);
+
+      for (let indexC = 0; indexC <= c; indexC++) {
+        const x = -0.5 + (indexC / c);
+        const uvX = indexC / c;
+
+        verts.push(new Vector3(x, y, 0));
+        uvs.push(new Vector2(uvX, uvY));
+      }
+    }
+
+    const triangles: number[] = [];
+
+    for (let indexR = 0; indexR < r; indexR++) {
+      for (let indexC = 0; indexC < c; indexC++) {
+        const nw = indexR * vertsPerRow + indexC;
+        const ne = nw + 1;
+        const sw = nw + vertsPerRow;
+        const se = sw + 1;
+
+        if (drawSide === 'Front' || drawSide === 'Both') {
+          triangles.push(...getQuadTriangles(nw, ne, se, sw));
+        }
+        if (drawSide === 'Back' || drawSide === 'Both') {
+          triangles.push(...getQuadTriangles(ne, nw, sw, se));
+        }
+      }
+    }
+
+    planeMap.set(cacheKey, [verts, uvs, triangles]);
+
+    return [verts, uvs, triangles];
+  }
 }
 
 
