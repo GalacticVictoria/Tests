@@ -1,14 +1,138 @@
-import { registerStart } from "./Yuu API/RegisterStart";
 
+import { crystalMesh } from "./MeshesGeometry";
+import { Color } from "./Yuu API/Basic Types/Color";
+import { Quaternion } from "./Yuu API/Basic Types/Quaternion";
+import { Vector2 } from "./Yuu API/Basic Types/Vector2";
+import { Vector3 } from "./Yuu API/Basic Types/Vector3";
+import { registerStart } from "./Yuu API/RegisterStart";
+import { Entity } from "./Yuu API/Entity";
+
+
+export type ExportedMeshData = {
+  verts: Float32Array;
+  uvs: Float32Array;
+  triangles: Int32Array;
+};
+
+function unpackVerts(flat: Float32Array): Vector3[] {
+  const verts: Vector3[] = [];
+
+  for (let i = 0; i < flat.length; i += 3) {
+    verts.push(new Vector3(
+      flat[i],
+      flat[i + 1],
+      flat[i + 2]
+    ));
+  }
+
+  return verts;
+}
+
+function unpackUVs(flat: Float32Array): Vector2[] {
+  const uvs: Vector2[] = [];
+
+  for (let i = 0; i < flat.length; i += 2) {
+    uvs.push(new Vector2(
+      flat[i],
+      flat[i + 1]
+    ));
+  }
+
+  return uvs;
+}
+
+export function customMesh(
+  meshData: ExportedMeshData,
+  pos: Vector3,
+  scale: Vector3 = Vector3.one,
+  rot: Quaternion = Quaternion.one,
+  color: Color = Color.white,
+  alphaTransparency = 1,
+  colliderType: 'None' | 'Convex' | 'Concave' = 'None',
+  type: BaseNodeTypes = "Empty",
+  parent?: Entity
+): Entity {
+
+  const entity = new Entity(
+    pos,
+    rot,
+    Vector3.one,
+    parent,
+    type
+  );
+
+  entity.mesh.create(
+    unpackVerts(meshData.verts),
+    unpackUVs(meshData.uvs),
+    Array.from(meshData.triangles)
+  );
+
+  entity.mesh.color.set(
+    color,
+    Math.min(1, alphaTransparency)
+  );
+
+  if (colliderType !== "None" && entity.mesh.nodeID) {
+    entity.collider.createFromMeshNode(
+      entity.mesh.nodeID,
+      colliderType
+    );
+  }
+
+  entity.scale = scale;
+
+  return entity;
+}
+
+
+export function customMeshWithShader(
+  meshData: ExportedMeshData,
+  shaderCode: string,
+  pos: Vector3,
+  scale: Vector3 = Vector3.one,
+  rot: Quaternion = Quaternion.one,
+  color: Color = Color.white,
+  alphaTransparency = 1,
+  colliderType: 'None' | 'Convex' | 'Concave' = 'None',
+  type: BaseNodeTypes = "Empty",
+  parent?: Entity
+): Entity {
+
+  const entity = customMesh(
+    meshData,
+    pos,
+    scale,
+    rot,
+    color,
+    alphaTransparency,
+    colliderType,
+    type,
+    parent
+  );
+
+  if (entity.mesh.nodeID) {
+    Godot.shader.applyToMesh(
+      entity.mesh.nodeID,
+      shaderCode
+    );
+  }
+
+  return entity;
+}
 
 
 registerStart(start);
 function start() {
+    const crystal = customMesh(
+        crystalMesh,
+        new Vector3(10, 1.5, -1.5),
+        new Vector3(1, 1, 1),
+        Quaternion.one,
+        Color.blue,
+        1,
+        "Convex",
+        "Empty",
+        undefined);
 
-const crystalMesh = {
-  verts: new Float32Array([-0.168419, 0.000000, 0.467116, -0.168419, 0.867183, -0.000000, -0.168419, 0.000000, -0.467116, -0.168419, -0.867183, -0.000000, -0.000000, -1.414214, -0.000000, -0.000000, 0.000000, -0.761779, 0.168419, 0.000000, -0.467116, 0.168419, -0.867183, -0.000000, 0.168419, 0.867183, -0.000000, 0.168419, 0.000000, 0.467116, -0.000000, 0.000000, 0.761779, -0.000000, 1.414213, -0.000000, -0.168419, 0.867183, -0.000000, -0.168419, 0.000000, 0.467116, -0.000000, -1.414214, -0.000000, -0.000000, 0.000000, 0.761779, -0.000000, 0.000000, -0.761779, -0.168419, 0.000000, -0.467116, -0.168419, 0.867183, -0.000000, -0.000000, 1.414213, -0.000000, -0.168419, -0.867183, -0.000000, -0.168419, 0.000000, 0.467116]),
-  uvs: new Float32Array([0.375000, 1.000000, 0.625000, 1.000000, 0.625000, 0.750000, 0.375000, 0.750000, 0.375000, 0.625000, 0.625000, 0.625000, 0.625000, 0.500000, 0.375000, 0.500000, 0.625000, 0.250000, 0.375000, 0.250000, 0.375000, 0.125000, 0.625000, 0.125000, 0.625000, 0.000000, 0.375000, 0.000000, 0.250000, 0.500000, 0.250000, 0.250000, 0.750000, 0.500000, 0.875000, 0.500000, 0.875000, 0.250000, 0.750000, 0.250000, 0.125000, 0.500000, 0.125000, 0.250000]),
-  triangles: new Int32Array([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 7, 6, 8, 7, 8, 9, 10, 11, 12, 10, 12, 13, 14, 7, 9, 14, 9, 15, 16, 17, 18, 16, 18, 19, 6, 16, 19, 6, 19, 8, 20, 14, 15, 20, 15, 21, 9, 8, 11, 9, 11, 10, 3, 2, 5, 3, 5, 4]),
-};
 
 }
