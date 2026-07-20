@@ -61,7 +61,7 @@ function start() {
   // CREATE ENTITY + MESH
 
   const crystal = new Entity(
-    new Vector3(8, 1.5, -1.5),
+    new Vector3(8, 5, -1.5),
     Quaternion.one,
     Vector3.one,
     undefined,
