@@ -2,7 +2,7 @@ import { registerStart } from "./Yuu API/RegisterStart";
 import { Color } from "./Yuu API/Basic Types/Color";
 import { SkyDome } from "./Yuu API/SkyDome";
 
-registerStart(start);
+//registerStart(start);
 
 function start() {
   // Ambient light tint
@@ -14,10 +14,10 @@ function start() {
   SkyDome.skyMaterial.setProceduralSkyMaterial(
     new Color(1.0, 0.0, 0.0),  // top color
     new Color(1.0, 0.78, 0.0),  // top horizon color
-    .09,                            // top curve
+    .02,                            // top curve
     new Color(1.0, 0.0, 0.0),     // bottom color
     new Color(1.0, 0.78, 0.0),   // bottom horizon color
-    .09                             // bottom curve
+    .02                             // bottom curve
   );
 
 }
