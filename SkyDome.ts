@@ -8,7 +8,7 @@ function start() {
   // Ambient light tint
   SkyDome.ambientLight.baseColor.set(new Color(1.0, 1.0, 1.0));
   SkyDome.ambientLight.energy.set(.01);
-  SkyDome.ambientLight.skyColorContribution.set(0.6);
+  SkyDome.ambientLight.skyColorContribution.set(0.0);
 
   // Procedural sky gradient
   SkyDome.skyMaterial.setProceduralSkyMaterial(
