@@ -940,11 +940,11 @@ ALBEDO = UV.x * vec3(0.0, 0.2, 0.5) * 6.0;
         500,
         "Both",
         new Vector3(8.0, 1.5, 4.0),
-        new Vector3(3, 3, 1.0),
+        new Vector3(3, 3, 3.0),
         Quaternion.one,
         new Color(1.0, 1.0, 1.0),
         1,
-        "Convex",
+        "None",
         "Animated",
         undefined
 
