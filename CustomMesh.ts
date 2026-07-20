@@ -1,146 +1,76 @@
 
-import { crystalMesh } from "./MeshesGeometry";
-import { Color } from "./Yuu API/Basic Types/Color";
-import { Quaternion } from "./Yuu API/Basic Types/Quaternion";
-import { Vector2 } from "./Yuu API/Basic Types/Vector2";
-import { Vector3 } from "./Yuu API/Basic Types/Vector3";
 import { registerStart } from "./Yuu API/RegisterStart";
+import { Vector3 } from "./Yuu API/Basic Types/Vector3";
+import { Vector2 } from "./Yuu API/Basic Types/Vector2";
+import { Quaternion } from "./Yuu API/Basic Types/Quaternion";
 import { Entity } from "./Yuu API/Entity";
-import { inWorldConsole } from "./Yuu API/Console";
-
-
-
-export type ExportedMeshData = {
-  verts: Float32Array;
-  uvs: Float32Array;
-  triangles: Int32Array;
-};
-
-function unpackVerts(flat: Float32Array): Vector3[] {
-  const verts: Vector3[] = [];
-
-  for (let i = 0; i < flat.length; i += 3) {
-    verts.push(new Vector3(
-      flat[i],
-      flat[i + 1],
-      flat[i + 2]
-    ));
-  }
-
-  return verts;
-}
-
-function unpackUVs(flat: Float32Array): Vector2[] {
-  const uvs: Vector2[] = [];
-
-  for (let i = 0; i < flat.length; i += 2) {
-    uvs.push(new Vector2(
-      flat[i],
-      flat[i + 1]
-    ));
-  }
-
-  return uvs;
-}
-
-export function customMesh(
-  meshData: ExportedMeshData,
-  pos: Vector3,
-  scale: Vector3 = Vector3.one,
-  rot: Quaternion = Quaternion.one,
-  color: Color = Color.white,
-  alphaTransparency = 1,
-  colliderType: 'None' | 'Convex' | 'Concave' = 'None',
-  type: BaseNodeTypes = "Empty",
-  parent?: Entity
-): Entity {
-
-  const entity = new Entity(
-    pos,
-    rot,
-    Vector3.one,
-    parent,
-    type
-  );
-
-  entity.mesh.create(
-    unpackVerts(meshData.verts),
-    unpackUVs(meshData.uvs),
-    Array.from(meshData.triangles)
-  );
-
-  entity.mesh.color.set(
-    color,
-    Math.min(1, alphaTransparency)
-  );
-
-  if (colliderType !== "None" && entity.mesh.nodeID) {
-    entity.collider.createFromMeshNode(
-      entity.mesh.nodeID,
-      colliderType
-    );
-  }
-
-  entity.scale = scale;
-
-  return entity;
-}
-
-
-export function customMeshWithShader(
-  meshData: ExportedMeshData,
-  shaderCode: string,
-  pos: Vector3,
-  scale: Vector3 = Vector3.one,
-  rot: Quaternion = Quaternion.one,
-  color: Color = Color.white,
-  alphaTransparency = 1,
-  colliderType: 'None' | 'Convex' | 'Concave' = 'None',
-  type: BaseNodeTypes = "Empty",
-  parent?: Entity
-): Entity {
-
-  const entity = customMesh(
-    meshData,
-    pos,
-    scale,
-    rot,
-    color,
-    alphaTransparency,
-    colliderType,
-    type,
-    parent
-  );
-
-  if (entity.mesh.nodeID) {
-    Godot.shader.applyToMesh(
-      entity.mesh.nodeID,
-      shaderCode
-    );
-  }
-
-  return entity;
-}
 
 registerStart(start);
+
 function start() {
 
-     inWorldConsole.visible(true, new Vector3(4,1.5,-1.5));
+ 
+  // RAW DATA FROM YOUR JSON FILE
 
-    console.log("Crystal verts:", crystalMesh.verts.length);
-    console.log("Crystal triangles:", crystalMesh.triangles.length);
+  const rawVerts = [
+    [-0.16841921210289001, -0.5643641948699951, 3.7384681701660156],
+    [-0.16841921210289001, -0.09724806994199753, 4.605650901794434],
+    [-0.16841921210289001, -0.09724806994199753, 2.8712854385375977],
+    [-0.16841921210289001, 0.3698679208755493, 3.7384681701660156],
+    [0.16841921210289001, -0.5643641948699951, 3.7384681701660156],
+    [0.16841921210289001, -0.09724806994199753, 4.605650901794434],
+    [0.16841921210289001, -0.09724806994199753, 2.8712854385375977],
+    [0.16841921210289001, 0.3698679208755493, 3.7384681701660156],
+    [0.0, -0.09724798053503036, 2.3242545127868652],
+    [0.0, 0.6645312905311584, 3.7384681701660156],
+    [0.0, -0.8590273857116699, 3.7384681701660156],
+    [0.0, -0.09724804013967514, 5.152681350708008]
+  ];
+
+  const rawUVs = [
+    [0.375, 0.0], [0.625, 0.25], [0.375, 0.25], [0.625, 0.375],
+    [0.375, 0.5], [0.375, 0.375], [0.625, 0.5], [0.375, 0.75],
+    [0.375, 0.5], [0.375, 0.875], [0.625, 1.0], [0.375, 1.0],
+    [0.375, 0.5], [0.25, 0.75], [0.25, 0.5], [0.75, 0.5],
+    [0.875, 0.75], [0.75, 0.75], [0.75, 0.5], [0.625, 0.75],
+    [0.625, 0.5], [0.125, 0.5], [0.25, 0.75], [0.125, 0.75],
+    [0.625, 0.75], [0.375, 0.875], [0.375, 0.75], [0.375, 0.25],
+    [0.625, 0.375], [0.375, 0.375], [0.375, 0.0], [0.625, 0.0],
+    [0.625, 0.25], [0.625, 0.375], [0.625, 0.5], [0.375, 0.5],
+    [0.625, 0.5], [0.625, 0.75], [0.375, 0.75], [0.375, 0.875],
+    [0.625, 0.875], [0.625, 1.0], [0.375, 0.5], [0.375, 0.75],
+    [0.25, 0.75], [0.75, 0.5], [0.875, 0.5], [0.875, 0.75],
+    [0.75, 0.5], [0.75, 0.75], [0.625, 0.75], [0.125, 0.5],
+    [0.25, 0.5], [0.25, 0.75], [0.625, 0.75], [0.625, 0.875],
+    [0.375, 0.875], [0.375, 0.25], [0.625, 0.25], [0.625, 0.375]
+  ];
+
+  const triangles = [
+    0,3,2, 9,6,8, 7,4,6, 10,1,0, 6,10,8, 9,1,11,
+    9,5,7, 2,10,0, 5,10,4, 2,9,8, 0,1,3, 9,7,6,
+    7,5,4, 10,11,1, 6,4,10, 9,3,1, 9,11,5, 2,8,10,
+    5,11,10, 2,3,9
+  ];
+
+  // CONVERT RAW ARRAYS → API TYPES
+
+  const verts = rawVerts.map(v => new Vector3(v[0], v[1], v[2]));
+  const uvs = rawUVs.map(uv => new Vector2(uv[0], uv[1]));
 
 
-    const crystal = customMesh(
-        crystalMesh,
-        new Vector3(6, 1.5, -1.5),
-        new Vector3(1, 1, 1),
-        Quaternion.one,
-        new Color(0,0,1),
-        1,
-        "Convex",
-        "Empty",
-        undefined);
+  // CREATE ENTITY + MESH
 
+  const crystal = new Entity(
+    new Vector3(8, 1.5, -1.5),
+    Quaternion.one,
+    Vector3.one,
+    undefined,
+    "Empty"
+  );
 
+  crystal.mesh.create(verts, uvs, triangles);
+
+  // Optional: scale it down (your mesh is ~3 meters tall)
+  crystal.scale = new Vector3(0.2, 0.2, 0.2);
 }
+
