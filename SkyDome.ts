@@ -12,11 +12,11 @@ function start() {
 
   // Procedural sky gradient
   SkyDome.skyMaterial.setProceduralSkyMaterial(
-    new Color(0.0, 0.0, 0.0),  // top color
-    new Color(0.0, 0.0, 1.0),  // top horizon color
-    10,                            // top curve
-    new Color(0.0, 1.0, 0.0),     // bottom color
-    new Color(0.0, 0.0, 0.0),   // bottom horizon color
+    new Color(0.0, 0.2, 1.0),  // top color
+    new Color(0.0, 0.0, 0.0),  // top horizon color
+    1,                            // top curve
+    new Color(0.0, 0.0, 0.0),     // bottom color
+    new Color(0.0, 1.0, 0.0),   // bottom horizon color
     3                             // bottom curve
   );
 
