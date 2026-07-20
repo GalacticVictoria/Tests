@@ -14,9 +14,9 @@ function start() {
   SkyDome.skyMaterial.setProceduralSkyMaterial(
     new Color(1.0, 0.0, 0.0),  // top color
     new Color(1.0, 0.78, 0.0),  // top horizon color
-    1,                            // top curve
-    new Color(1.0, 0.78, 0.0),     // bottom color
-    new Color(1.0, 0.0, 0.0),   // bottom horizon color
+    .01,                            // top curve
+    new Color(1.0, 0.0, 0.0),     // bottom color
+    new Color(1.0, 0.78, 0.0),   // bottom horizon color
     .01                             // bottom curve
   );
 
