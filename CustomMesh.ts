@@ -86,9 +86,9 @@ function start() {
 
   crystal.mesh.create(verts, uvs, triangles);
 
-  crystal.rot = new Quaternion(0.7071068, 0, 0, 0.7071068); // Rotate 90 degrees around Y-axis
+  crystal.rot = new Quaternion(0.7071068, 0, 0, 0.7071068); 
 
-  // Optional: scale it down (your mesh is ~3 meters tall)
+  // scale it down 
   //crystal.scale = new Vector3(0.2, 0.2, 0.2);
 }
 
