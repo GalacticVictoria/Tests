@@ -68,9 +68,25 @@ function start() {
     "Empty"
   );
 
+  // Ensure UVs length matches verts length; auto-adjust if needed
+  if (uvs.length !== verts.length) {
+    console.warn(`UV count (${uvs.length}) doesn't match verts count (${verts.length}). Adjusting UVs.`);
+
+    if (uvs.length > verts.length) {
+      // Truncate extra UVs
+      uvs.length = verts.length;
+    }
+    else {
+      // Pad missing UVs with a centered UV
+      while (uvs.length < verts.length) {
+        uvs.push(new Vector2(0.5, 0.5));
+      }
+    }
+  }
+
   crystal.mesh.create(verts, uvs, triangles);
 
   // Optional: scale it down (your mesh is ~3 meters tall)
-  crystal.scale = new Vector3(0.2, 0.2, 0.2);
+  //crystal.scale = new Vector3(0.2, 0.2, 0.2);
 }
 
