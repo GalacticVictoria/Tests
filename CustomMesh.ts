@@ -62,7 +62,7 @@ function start() {
 
   const crystal = new Entity(
     new Vector3(4, 6, -4),
-    new Quaternion(0, 0, 0, 1),
+    Quaternion.one,
     Vector3.one,
     undefined,
     "Empty"
@@ -86,9 +86,9 @@ function start() {
 
   crystal.mesh.create(verts, uvs, triangles);
 
-  //crystal.rot = new Quaternion(0.7071068, 0, 0, 0.7071068); 
+  crystal.rot = new Quaternion(0.7071068, 0, 0, 0.7071068); 
 
-  // scale it down 
+  // Optional: scale it down 
   //crystal.scale = new Vector3(0.2, 0.2, 0.2);
 }
 
