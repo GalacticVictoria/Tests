@@ -7,12 +7,12 @@ registerStart(start);
 function start() {
   // Ambient light tint
   SkyDome.ambientLight.baseColor.set(new Color(1.0, 1.0, 1.0));
-  SkyDome.ambientLight.energy.set(.1);
+  SkyDome.ambientLight.energy.set(.01);
   SkyDome.ambientLight.skyColorContribution.set(0.6);
 
   // Procedural sky gradient
   SkyDome.skyMaterial.setProceduralSkyMaterial(
-    new Color(0.0, 1.0, 0.0),  // top color
+    new Color(1.0, 0.0, 0.0),  // top color
     new Color(1.0, 0.78, 0.0),  // top horizon color
     1,                            // top curve
     new Color(0.0, 0.0, 0.0),     // bottom color
