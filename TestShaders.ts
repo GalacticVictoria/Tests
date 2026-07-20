@@ -934,3 +934,151 @@ ALBEDO = UV.x * vec3(0.0, 0.2, 0.5) * 6.0;
 
 }
 
+
+    const water = spawnPrimitive.plane(
+        500,
+        500,
+        "Both",
+        new Vector3(8.0, 1.5, 4.0),
+        new Vector3(3, 3, 1.0),
+        Quaternion.one,
+        new Color(1.0, 1.0, 1.0),
+        1,
+        "Convex",
+        "Animated",
+        undefined
+
+    )
+
+    
+    const WaterAnimation = `shader_type spatial;
+
+uniform sampler2D DEPTH_TEXTURE : hint_depth_texture;
+uniform sampler2D SCREEN_TEXTURE : hint_screen_texture;
+
+uniform vec3 albedo : source_color = vec3(0.0, 0.32, 0.43);
+uniform vec3 albedo2 : source_color = vec3(0.19, 0.72, 0.75);
+
+uniform float metallic = 0.0;
+uniform float roughness = 0.0;
+
+uniform float time_scale = 0.1;
+uniform float noise_scale = 5.0;
+uniform float height_scale = 0.25;
+
+uniform vec4 color_deep : source_color = vec4(0.0, 0.24, 0.33, 1.0);
+uniform vec4 color_shallow : source_color = vec4(0.19, 0.72, 0.75, 1.0);
+
+uniform float beers_law = 1.0;
+uniform float depth_offset = 1.5;
+
+uniform float edge_scale = 0.06;
+uniform float near = 1.0;
+uniform float far = 100.0;
+uniform vec3 edge_color : source_color = vec3(1, 0.9, 1.0);
+
+varying vec3 world_pos;
+
+
+// ----------------------
+// Pure GLSL noise
+// ----------------------
+float hash(vec2 p) {
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+}
+
+float noise2d(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+
+    float a = hash(i);
+    float b = hash(i + vec2(1, 0));
+    float c = hash(i + vec2(0, 1));
+    float d = hash(i + vec2(1, 1));
+
+    vec2 u = f * f * (3.0 - 2.0 * f);
+
+    return mix(a, b, u.x) +
+           (c - a) * u.y * (1.0 - u.x) +
+           (d - b) * u.x * u.y;
+}
+
+float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 5; i++) {
+        v += a * noise2d(p);
+        p *= 2.0;
+        a *= 0.5;
+    }
+    return v;
+}
+
+float edge_depth(float depth){
+    depth = 1.0 - 2.0 * depth;
+    return near * far / (far + depth * (near - far));
+}
+
+
+// ----------------------
+// Vertex
+// ----------------------
+void vertex() {
+    world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+
+    float h = fbm(world_pos.xz * noise_scale + TIME * time_scale);
+    VERTEX.y += h * height_scale;
+}
+
+
+// ----------------------
+// Fragment
+// ----------------------
+void fragment() {
+    // Depth blending
+    float depth_tex = texture(DEPTH_TEXTURE, SCREEN_UV).r * 2.0 - 1.0;
+    float depth = PROJECTION_MATRIX[3][2] / (depth_tex + PROJECTION_MATRIX[2][2]);
+
+    float depth_blend = exp((depth + VERTEX.z + depth_offset) * -beers_law);
+    depth_blend = clamp(1.0 - depth_blend, 0.0, 1.0);
+    float depth_blend_power = pow(depth_blend, 2.5);
+
+    vec3 screen_color = textureLod(SCREEN_TEXTURE, SCREEN_UV, depth_blend_power * 2.5).rgb;
+    vec3 depth_color = mix(color_shallow.rgb, color_deep.rgb, depth_blend_power);
+
+    vec3 water_color = mix(screen_color, depth_color, depth_blend_power * 0.5);
+
+
+	
+    // Procedural normals
+    float n = fbm(world_pos.xz * noise_scale + TIME * time_scale);
+    float nx = fbm(world_pos.xz * noise_scale + vec2(0.01, 0.0) + TIME * time_scale);
+    float ny = fbm(world_pos.xz * noise_scale + vec2(0.0, 0.01) + TIME * time_scale);
+
+    float dx = nx - n;
+    float dy = ny - n;
+	
+
+    // Convert to tangent-space normal map
+    NORMAL_MAP = vec3(0.5 + dx * 2.0, 0.5 + dy * 2.0, 1.0);
+    NORMAL_MAP_DEPTH = 1.0;
+
+    // Fresnel
+    float f = pow(1.0 - dot(NORMAL, VIEW), 5.0);
+    vec3 surface_color = mix(albedo, albedo2, f);
+
+    ALBEDO = surface_color + water_color * 0.5;
+    METALLIC = metallic;
+    ROUGHNESS = roughness;
+	ALPHA = .9;
+}`
+
+
+    if(water.mesh.nodeID) {
+        Godot.shader.applyToMesh(water.mesh.nodeID, WaterAnimation)
+    }
+
+water.rot = new Quaternion(0.7071068, 0, 0, 0.7071068); 
+
