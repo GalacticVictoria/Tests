@@ -86,7 +86,7 @@ function start() {
 
   crystal.mesh.create(verts, uvs, triangles);
 
-  crystal.rot = new Quaternion(0.7071068, 0, 0, 0.7071068); 
+  crystal.rot = new Quaternion(0.7071068, 0.7071068, 0, 0.7071068); 
 
   // Optional: scale it down 
   //crystal.scale = new Vector3(0.2, 0.2, 0.2);
