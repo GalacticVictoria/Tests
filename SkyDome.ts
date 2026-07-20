@@ -15,9 +15,9 @@ function start() {
     new Color(1.0, 0.0, 0.0),  // top color
     new Color(1.0, 0.78, 0.0),  // top horizon color
     1,                            // top curve
-    new Color(0.0, 0.0, 0.0),     // bottom color
-    new Color(0.0, 1.0, 0.0),   // bottom horizon color
-    3                             // bottom curve
+    new Color(1.0, 0.78, 0.0),     // bottom color
+    new Color(1.0, 0.0, 0.0),   // bottom horizon color
+    .01                             // bottom curve
   );
 
 }
