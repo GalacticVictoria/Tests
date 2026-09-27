@@ -59,7 +59,7 @@ function start() {
         undefined);
 
         Particle4.rot = new Quaternion(1.0, 0.0, 0.0, 0.0);
-        Particle4.scale = new Vector3(0.05, 0.3, 0.05);
+        Particle4.scale = new Vector3(0.05, 0.2, 0.05);
 
 
 
