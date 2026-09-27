@@ -62,8 +62,8 @@ function start() {
 
     const Particle5 = spawnPrimitive.cone(
         8,
-        new Vector3(-2.0, 1.5, -8.0),
-        1.5,
+        new Vector3(-0.0, 1.5, -8.0),
+        0.5,
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
         1.0,
