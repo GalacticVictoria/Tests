@@ -36,8 +36,8 @@ function start() {
 
 
         const Particle3 = spawnPrimitive.sphere(
-        30,
-        30,
+        5,
+        5,
         new Vector3(-4.0, 1.5, -8.0),
         0.5,
         Quaternion.one,
@@ -49,8 +49,24 @@ function start() {
 
 
 
-        const Particle4 = spawnPrimitive.cube(
+        const Particle4 = spawnPrimitive.sphere(
+        30,
+        30,
         new Vector3(-2.0, 1.5, -8.0),
+        0.5,
+        Quaternion.one,
+        new Color(0.0, 1.0, 0.0),
+        1.0,
+        `None`,
+        `Animated`,
+        undefined);
+
+        Particle4.scale = new vector3(0.5, 1.0, 0.5);
+
+
+
+        const Particle5 = spawnPrimitive.cube(
+        new Vector3(-0.0, 1.5, -8.0),
         new Vector3(0.05, 0.5, 0.05),
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
@@ -61,9 +77,9 @@ function start() {
 
 
 
-    const Particle5 = spawnPrimitive.cone(
+    const Particle6 = spawnPrimitive.cone(
         3,
-        new Vector3(0.0, 1.5, -8.0),
+        new Vector3(-2.0, 1.5, -8.0),
         0.5,
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
