@@ -9,8 +9,8 @@ import { spawnPrimitive } from "./Yuu API/SpawnPrimitive";
 
 
 
-registerStart(start);
-function start() {
+//registerStart(start);
+//function start() {
 
     //Sphere's with Emission
 
