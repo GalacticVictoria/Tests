@@ -61,7 +61,7 @@ function start() {
         `Animated`,
         undefined);
 
-        Particle4.scale = new vector3(0.5, 1.0, 0.5);
+        Particle4.scale = new Vector3(0.5, 1.0, 0.5);
 
 
 
