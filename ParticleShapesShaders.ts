@@ -11,7 +11,7 @@ function start() {
     const Particle1 = spawnPrimitive.sphere(
         3,
         3,
-        new Vector3(-4.0, 6.0, -1.5),
+        new Vector3(-4.0, 2.0, -2.5),
         0.5,
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
