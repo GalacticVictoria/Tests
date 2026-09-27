@@ -37,7 +37,7 @@ function start() {
 
         const Particle3 = spawnPrimitive.cube(
         new Vector3(-4.0, 1.5, -8.0),
-        new Vector3(0.2, 0.5, 0.2),
+        new Vector3(0.05, 0.5, 0.05),
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
         1.0,
@@ -59,6 +59,7 @@ function start() {
         undefined);
 
         Particle4.rot = new Quaternion(1.0, 0.0, 0.0, 0.0);
+        Particle4.scale = new Vector3(0.5, 1.5, 0.5);
 
 
 
