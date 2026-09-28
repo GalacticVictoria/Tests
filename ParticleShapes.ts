@@ -29,7 +29,7 @@ function start() {
         0.5,
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
-        1.0,
+        0.5,
         `None`,
         `Animated`,
         undefined);
@@ -42,7 +42,7 @@ function start() {
         0.5,
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
-        1.0,
+        0.5,
         `None`,
         `Animated`,
         undefined);
@@ -56,7 +56,7 @@ function start() {
         0.5,
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
-        1.0,
+        0.5,
         `None`,
         `Animated`,
         undefined);
@@ -70,7 +70,7 @@ function start() {
         new Vector3(0.05, 0.5, 0.05),
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
-        1.0,
+        0.5,
         false,
         `Animated`,
         undefined);
@@ -83,7 +83,7 @@ function start() {
         0.5,
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
-        1.0,
+        0.5,
         `None`,
         `Animated`,
         undefined);
@@ -119,7 +119,7 @@ void vertex() {
 	colorshift = (animation - 0.6) /0.3;
 	
 	VERTEX.y += abs(1.0 * VERTEX.x) * displacement_strength * animation;
-	VERTEX.z = -0.5 * VERTEX.z;
+	VERTEX.z = 0.5 * VERTEX.z;
 }
 
 void fragment() {
