@@ -107,8 +107,8 @@ function start() {
         const HeartShader = `shader_type spatial;
 
 uniform float displacement_strength: hint_range(0.0, 1.0) = 1.0;
-uniform vec3 starting_color = vec3(0.8, 0.0 ,0.1);
-uniform vec3 ending_color = vec3(1.0, 0.0 ,0.0);
+uniform vec3 starting_color = vec3(0.5, 0.0 ,0.5);
+uniform vec3 ending_color = vec3(1.0, 0.0 ,0.5);
 
 varying float colorshift;
 
@@ -128,6 +128,8 @@ void fragment() {
 	ALBEDO = final_color;
 	
 	//ALBEDO = vec3(1, 0, 0);
+    METALLIC = 0.5;
+	ROUGHNESS = 0.7;
 }`;
 
     if(Heart.mesh.nodeID) {
