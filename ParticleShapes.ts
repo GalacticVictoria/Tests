@@ -104,6 +104,8 @@ function start() {
         `Animated`,
         undefined);
 
+        Heart.rot = new Quaternion(0.0, 0.5, 0.0, 0.0);
+
         const HeartShader = `shader_type spatial;
 
 uniform float displacement_strength: hint_range(0.0, 1.0) = 1.0;

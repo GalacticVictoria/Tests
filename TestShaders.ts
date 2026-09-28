@@ -817,7 +817,7 @@ void fragment() {
     ALPHA = 1.0;
     }`;
 
-
+    
     if (FFplane3.mesh.nodeID) {
         Godot.shader.applyToMesh(FFplane3.mesh.nodeID, fractalFlower3)
     }
@@ -876,7 +876,6 @@ void fragment() {
 	ALPHA = 1.0;
 }`;
 
-                
     if (FFplane4.mesh.nodeID) {
         Godot.shader.applyToMesh(FFplane4.mesh.nodeID, fractalFlower4)
     }
