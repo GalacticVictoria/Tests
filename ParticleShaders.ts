@@ -1,11 +1,14 @@
 import { registerStart } from "./Yuu API/RegisterStart";
+import { Color } from "./Yuu API/Basic Types/Color";
+import { Quaternion } from "./Yuu API/Basic Types/Quaternion";
+import { Vector3 } from "./Yuu API/Basic Types/Vector3";
+import { spawnPrimitive } from "./Yuu API/SpawnPrimitive";
 
 
 
 
-
-//registerStart(start);
-//function start() {
+registerStart(start);
+function start() {
 
 // Shader Library
 
@@ -322,5 +325,117 @@ void fragment() {
 	ALPHA = 1.0;
 }`;
 
+//Shaders Applied to Spheres
 
+    const sphere1 = spawnPrimitive.sphere(
+        30,
+        30,
+        new Vector3(-6.0, 1.5, -3.0),
+        0.5,
+        Quaternion.one,
+        new Color(0.0, 1.0, 0.0),
+        1.0,
+        `None`,
+        `Animated`,
+        undefined);
+
+        if(sphere1.mesh.nodeID) {
+            Godot.shader.applyToMesh(sphere1.mesh.nodeID, MagicPortal1);
+        }
+
+    const sphere2 = spawnPrimitive.sphere(
+        30,
+        30,
+        new Vector3(-5.0, 1.5, -3.0),
+        0.5,
+        Quaternion.one,
+        new Color(0.0, 1.0, 0.0),
+        1.0,
+        `None`,
+        `Animated`,
+        undefined);
+
+        if(sphere2.mesh.nodeID) {
+            Godot.shader.applyToMesh(sphere2.mesh.nodeID, MagicPortal2);
+        }
+
+    const sphere3 = spawnPrimitive.sphere(
+        30,
+        30,
+        new Vector3(-4.0, 1.5, -3.0),
+        0.5,
+        Quaternion.one,
+        new Color(0.0, 1.0, 0.0),
+        1.0,
+        `None`,
+        `Animated`,
+        undefined);
+
+        if(sphere3.mesh.nodeID) {
+            Godot.shader.applyToMesh(sphere3.mesh.nodeID, MagicPortal3);
+        }
+
+    const sphere4 = spawnPrimitive.sphere(
+        30,
+        30,
+        new Vector3(-3.0, 1.5, -3.0),
+        0.5,
+        Quaternion.one,
+        new Color(0.0, 1.0, 0.0),
+        1.0,
+        `None`,
+        `Animated`,
+        undefined);
+
+        if(sphere4.mesh.nodeID) {
+            Godot.shader.applyToMesh(sphere4.mesh.nodeID, fractalFlower1);
+        }
+
+    const sphere5 = spawnPrimitive.sphere(
+        30,
+        30,
+        new Vector3(-2.0, 1.5, -3.0),
+        0.5,
+        Quaternion.one,
+        new Color(0.0, 1.0, 0.0),
+        1.0,
+        `None`,
+        `Animated`,
+        undefined);
+
+        if(sphere5.mesh.nodeID) {
+            Godot.shader.applyToMesh(sphere5.mesh.nodeID, fractalFlower2);
+        }
+
+    const sphere6 = spawnPrimitive.sphere(
+        30,
+        30,
+        new Vector3(-1.0, 1.5, -3.0),
+        0.5,
+        Quaternion.one,
+        new Color(0.0, 1.0, 0.0),
+        1.0,
+        `None`,
+        `Animated`,
+        undefined);
+
+        if(sphere6.mesh.nodeID) {
+            Godot.shader.applyToMesh(sphere6.mesh.nodeID, fractalFlower3);
+        }
+
+    const sphere7 = spawnPrimitive.sphere(
+        30,
+        30,
+        new Vector3(0.0, 1.5, -3.0),
+        0.5,
+        Quaternion.one,
+        new Color(0.0, 1.0, 0.0),
+        1.0,
+        `None`,
+        `Animated`,
+        undefined);
+
+        if(sphere7.mesh.nodeID) {
+            Godot.shader.applyToMesh(sphere7.mesh.nodeID, fractalFlower4);
+        }
 }

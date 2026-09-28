@@ -15,7 +15,7 @@ function start() {
         0.5,
         Quaternion.one,
         new Color(0.0, 1.0, 0.0),
-        1.0,
+        0.5,
         `None`,
         `Animated`,
         undefined);
@@ -104,7 +104,6 @@ function start() {
         `Animated`,
         undefined);
 
-        
 
         const HeartShader = `shader_type spatial;
 
