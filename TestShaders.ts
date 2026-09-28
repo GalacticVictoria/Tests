@@ -700,10 +700,9 @@ void fragment() {
     
     ALBEDO = result;
     ALPHA = 1.0;
-    }
-    
-                
-    `
+    }`;
+
+
     if (FFplane1.mesh.nodeID) {
         Godot.shader.applyToMesh(FFplane1.mesh.nodeID, fractalFlower1)
     }
@@ -759,10 +758,9 @@ void fragment() {
     
     ALBEDO = result;
     ALPHA = 1.0;
-    }
-    
-                
-    `
+    }`;
+
+
     if (FFplane2.mesh.nodeID) {
         Godot.shader.applyToMesh(FFplane2.mesh.nodeID, fractalFlower2)
     }
@@ -817,10 +815,9 @@ void fragment() {
     
     ALBEDO = result;
     ALPHA = 1.0;
-    }
-    
-                
-    `
+    }`;
+
+
     if (FFplane3.mesh.nodeID) {
         Godot.shader.applyToMesh(FFplane3.mesh.nodeID, fractalFlower3)
     }
@@ -877,10 +874,9 @@ void fragment() {
 	
 	ALBEDO = result;
 	ALPHA = 1.0;
-}
+}`;
 
                 
-`
     if (FFplane4.mesh.nodeID) {
         Godot.shader.applyToMesh(FFplane4.mesh.nodeID, fractalFlower4)
     }
