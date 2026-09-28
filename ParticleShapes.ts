@@ -104,7 +104,7 @@ function start() {
         `Animated`,
         undefined);
 
-        Heart.rot = new Quaternion(0.0, 0.0, 0.5, 0.0);
+        
 
         const HeartShader = `shader_type spatial;
 
@@ -119,8 +119,8 @@ void vertex() {
 	
 	colorshift = (animation - 0.6) /0.3;
 	
-	VERTEX.y += abs(1.0 * VERTEX.z) * displacement_strength * animation;
-	VERTEX.x = -0.5 * VERTEX.x;
+	VERTEX.y += abs(1.0 * VERTEX.x) * displacement_strength * animation;
+	VERTEX.z = -0.5 * VERTEX.z;
 }
 
 void fragment() {
